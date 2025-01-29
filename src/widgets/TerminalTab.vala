@@ -27,6 +27,7 @@ public class Terminal.TerminalTab : Gtk.Box {
   [GtkChild] unowned SearchToolbar search_toolbar;
 
   private string default_title;
+  private Gtk.PopoverMenu popover;
 
   public Terminal terminal       { get; protected set; }
   public string?  title_override { get; private set; default = null; }
@@ -59,6 +60,7 @@ public class Terminal.TerminalTab : Gtk.Box {
     this.terminal = new Terminal (window, command, cwd);
     // TODO: Can't we use a property for this? Has default or something?
     this.terminal.grab_focus ();
+    this.popover = build_popover();
 
     var click = new Gtk.GestureClick () {
       button = Gdk.BUTTON_SECONDARY,
@@ -127,6 +129,9 @@ public class Terminal.TerminalTab : Gtk.Box {
       "enable-sixel",
       BindingFlags.SYNC_CREATE
     );
+
+    // refocus terminal after closing context menu, otherwise the focus will go on the header buttons
+    this.popover.closed.connect_after (pop_close);
   }
 
   private void on_show_scrollbars_updated () {
@@ -158,15 +163,27 @@ public class Terminal.TerminalTab : Gtk.Box {
     }
   }
 
+  public Gtk.PopoverMenu build_popover () {
+    var builder = new Gtk.Builder.from_resource ("/com/raggesilver/BlackBox/gtk/terminal-menu.ui");
+    var pop = builder.get_object ("popover") as Gtk.PopoverMenu;
+
+    pop.set_parent (this);
+    pop.set_has_arrow (false);
+    pop.set_halign (Gtk.Align.START);
+
+    return pop;
+  }
+
+  public void pop_close() {
+    this.terminal.grab_focus();
+  }
+
   public void show_menu (int n_pressed, double x, double y) {
     if (this.terminal.hyperlink_hover_uri != null) {
       this.terminal.window.link = this.terminal.hyperlink_hover_uri;
     } else {
       this.terminal.window.link = this.terminal.check_match_at (x, y, null);
     }
-
-    var builder = new Gtk.Builder.from_resource ("/com/raggesilver/BlackBox/gtk/terminal-menu.ui");
-    var pop = builder.get_object ("popover") as Gtk.PopoverMenu;
 
     double x_in_view, y_in_view;
     this.terminal.translate_coordinates (this, x, y, out x_in_view, out y_in_view);
@@ -176,17 +193,8 @@ public class Terminal.TerminalTab : Gtk.Box {
       y = (int) y_in_view
     };
 
-    pop.closed.connect_after (() => {
-      pop.destroy ();
-      // refocus terminal after closing context menu, otherwise the focus will go on the header buttons
-      this.terminal.grab_focus ();
-    });
-
-    pop.set_parent (this);
-    pop.set_has_arrow (false);
-    pop.set_halign (Gtk.Align.START);
-    pop.set_pointing_to (r);
-    pop.popup ();
+    this.popover.set_pointing_to (r);
+    this.popover.popup ();
   }
 
   public void search () {
