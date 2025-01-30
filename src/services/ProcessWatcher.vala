@@ -180,10 +180,7 @@ public class Terminal.ProcessWatcher : Object {
 
   private bool is_process_still_running (Pid pid) {
     try {
-      int status;
-      host_or_flatpak_spawn ({ "ps", "-p", pid.to_string () }, out status);
-
-      return status == 0;
+      return check_pid_running(pid);
     }
     catch (Error e) {
       warning ("%s", e.message);
@@ -217,29 +214,24 @@ public class Terminal.ProcessWatcher : Object {
           ) {
             var cmdline = get_process_cmdline (foreground_pid);
 
-            if (cmdline == "") {
+            if (cmdline == null || cmdline == "") {
               // Why does this happen?
               debug ("Skipping process with empty cmdline");
               return;
             }
 
             process.foreground_pid = foreground_pid;
-            process.last_foreground_task_command =
-              get_process_cmdline (foreground_pid);
+            process.last_foreground_task_command = cmdline;
           }
         });
       }
 
       // TODO: check that the main pid is still running
       {
-        int status;
-        host_or_flatpak_spawn ({ "ps", "-p", process.pid.to_string () },
-                               out status);
-
-        process.ended = status != 0;
-
+        process.ended = !check_pid_running (process.pid);
         // Should we emit an event for process finished?
       }
+
       {
         if (!process.ended) {
           try {
@@ -255,7 +247,7 @@ public class Terminal.ProcessWatcher : Object {
             else {
               var command = get_process_cmdline (source_pid);
 
-              if (command != "" && command.has_prefix ("ssh")) {
+              if (command != null && command.has_prefix ("ssh")) {
                 process.context = ProcessContext.SSH;
               }
               else {
