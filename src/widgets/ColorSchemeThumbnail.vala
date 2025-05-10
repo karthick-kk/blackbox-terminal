@@ -161,7 +161,7 @@ public class Terminal.ColorSchemeThumbnail : Gtk.FlowBoxChild {
       cursor = new Gdk.Cursor.from_name ("pointer", null),
     };
 
-    var css_provider = PQMarble.get_css_provider_for_data (
+    var css_provider = get_css_provider_for_data (
       //  "picture { background-color: %s; padding-bottom: 2em; }".printf (
       "picture { background-color: %s; }".printf (
         scheme.background_color.to_string ()
