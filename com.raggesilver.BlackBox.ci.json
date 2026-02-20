@@ -1,0 +1,55 @@
+{
+  "app-id": "com.raggesilver.BlackBox",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "47",
+  "sdk": "org.gnome.Sdk",
+  "command": "blackbox",
+  "finish-args": [
+    "--filesystem=host",
+    "--filesystem=xdg-run/gvfsd",
+    "--share=ipc",
+    "--socket=fallback-x11",
+    "--socket=wayland",
+    "--socket=session-bus",
+    "--device=all",
+    "--talk-name=org.freedesktop.Flatpak"
+  ],
+  "cleanup": [
+    "/include",
+    "/lib/pkgconfig",
+    "/man",
+    "/share/doc",
+    "/share/gtk-doc",
+    "/share/man",
+    "/share/pkgconfig",
+    "/share/vala",
+    "*.la",
+    "*.a"
+  ],
+  "modules": [
+    {
+      "name": "vte",
+      "buildsystem": "meson",
+      "config-opts": ["-Dgtk4=true", "-Dgtk3=false"],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://gitlab.gnome.org/GNOME/vte/-/archive/0.78.0/vte-0.78.0.tar.gz",
+          "sha256": "82e19d11780fed4b66400f000829ce5ca113efbbfb7975815f26ed93e4c05f2d"
+        }
+      ]
+    },
+    {
+      "name": "blackbox",
+      "builddir": true,
+      "buildsystem": "meson",
+      "config-opts": ["-Ddevel=false", "-Dblackbox_is_flatpak=true"],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "."
+        }
+      ]
+    }
+  ]
+}

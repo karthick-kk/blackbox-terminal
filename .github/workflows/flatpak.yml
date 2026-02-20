@@ -1,0 +1,35 @@
+name: Flatpak Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  flatpak:
+    name: Build Flatpak
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-47
+      options: --privileged
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --force-clean --repo=repo builddir com.raggesilver.BlackBox.ci.json
+
+      - name: Create bundle
+        run: |
+          flatpak build-bundle repo blackbox.flatpak com.raggesilver.BlackBox
+
+      - name: Upload artifact
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: blackbox-flatpak
+          path: blackbox.flatpak

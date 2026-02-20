@@ -112,6 +112,12 @@ public class Terminal.Terminal : Vte.Terminal {
 
     this.settings = Settings.get_default ();
     ThemeProvider.get_default ().notify ["current-theme"].connect (this.on_theme_changed);
+    this.selection_changed.connect (() => {
+      if (this.settings.copy_on_select && this.get_has_selection ()) {
+        this.copy_clipboard ();
+      }
+    });
+
     this.settings.notify["font"].connect (this.on_font_changed);
     this.settings.notify["terminal-padding"].connect (this.on_padding_changed);
     this.settings.notify["opacity"].connect (this.on_theme_changed);

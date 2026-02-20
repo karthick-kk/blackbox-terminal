@@ -150,6 +150,12 @@
                 <property name="subtitle" translatable="yes">Use ctrl+c/ctrl+v for copy/paste.</property>
               </object>
             </child>
+            <child>
+              <object class="AdwSwitchRow" id="copy_on_select_switch_row">
+                <property name="title" translatable="yes">Copy on Select</property>
+                <property name="subtitle" translatable="yes">Automatically copy selected text to the clipboard.</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>

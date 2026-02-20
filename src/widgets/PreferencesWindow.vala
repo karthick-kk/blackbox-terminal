@@ -48,6 +48,7 @@ public class Terminal.PreferencesWindow : Adw.PreferencesDialog {
   [GtkChild] unowned Gtk.Label                no_sixel_support_label;
   [GtkChild] unowned Adw.SpinRow              custom_scrollback_spin_row;
   [GtkChild] unowned Adw.SpinRow              padding_spin_row;
+  [GtkChild] unowned Adw.SwitchRow            copy_on_select_switch_row;
   [GtkChild] unowned Adw.SwitchRow            easy_copy_paste_switch_row;
   [GtkChild] unowned Adw.SwitchRow            fill_tabs_switch_row;
   [GtkChild] unowned Adw.SwitchRow            floating_controls_switch_row;
@@ -286,6 +287,13 @@ public class Terminal.PreferencesWindow : Adw.PreferencesDialog {
     settings.schema.bind(
       "easy-copy-paste",
       this.easy_copy_paste_switch_row,
+      "active",
+      SettingsBindFlags.DEFAULT
+    );
+
+    settings.schema.bind(
+      "copy-on-select",
+      this.copy_on_select_switch_row,
       "active",
       SettingsBindFlags.DEFAULT
     );
